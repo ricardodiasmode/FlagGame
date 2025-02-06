@@ -23,6 +23,7 @@ AArenaGenerator::AArenaGenerator()
 	ArenaMesh->SetupAttachment(RootComponent);
 
 	bReplicates = true;
+	bAlwaysRelevant = true;
 }
 
 void AArenaGenerator::DestroyAllCreatedObjects()
@@ -44,6 +45,9 @@ void AArenaGenerator::DestroyAllCreatedObjects()
 		OutActors.RemoveAt(0);
 	}
 
+	if (!HasAuthority()) // player should not destroy player bases
+		return;
+	
 	// This call is not heavy since it uses hash buckets
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerBase::StaticClass(), OutActors);
 	while (!OutActors.IsEmpty())
@@ -166,13 +170,11 @@ void AArenaGenerator::CreatePlayerBase()
 	BluePlayerBase->BaseTeam = EPlayerTeam::Blue;
 }
 
-void AArenaGenerator::OnConstruction(const FTransform& Transform)
+void AArenaGenerator::Setup()
 {
-	Super::OnConstruction(Transform);
-
-	if (!UKismetSystemLibrary::IsServer(GetWorld()))
+	if (!HasAuthority())
 	{
-		DestroyAllCreatedObjects(); // destroy client-created objects, if any
+		DestroyAllCreatedObjects();
 		return;
 	}
 	
@@ -185,6 +187,13 @@ void AArenaGenerator::OnConstruction(const FTransform& Transform)
 	CreatePlayerStarts();
 
 	CreatePlayerBase();
+}
+
+void AArenaGenerator::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	Setup();
 }
 
 

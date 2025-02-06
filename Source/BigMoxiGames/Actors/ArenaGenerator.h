@@ -50,7 +50,10 @@ protected:
 
 private:
 	void CreatePlayerBase();
-	
+
+	UFUNCTION(CallInEditor)
+	void Setup();
+
 	void DestroyAllCreatedObjects();
 	
 	void SetupSpawnedProp(UStaticMeshComponent* Prop,
@@ -69,7 +72,6 @@ private:
 
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:
