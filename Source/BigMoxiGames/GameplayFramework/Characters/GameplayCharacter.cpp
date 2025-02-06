@@ -12,6 +12,7 @@
 #include "BigMoxiGames/AbilitySystem/FlagAbilitySystemComponent.h"
 #include "BigMoxiGames/AnimInstances/FirstPersonAnimInstance.h"
 #include "BigMoxiGames/GameplayFramework/HUDs/FlagHUD.h"
+#include "BigMoxiGames/GameplayFramework/PlayerControllers/GameplayPlayerController.h"
 #include "BigMoxiGames/GameplayFramework/PlayerStates/FlagPlayerState.h"
 #include "BigMoxiGames/Pickables/Weapon.h"
 #include "BigMoxiGames/Structs/InputMappingContextAndPriority.h"
@@ -103,6 +104,8 @@ void AGameplayCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		ASIC->BindNativeAction(InputConfig, InputTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Move, /*bLogIfNotFound=*/ false);
 		ASIC->BindNativeAction(InputConfig, InputTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Look, /*bLogIfNotFound=*/ false);
+
+		ASIC->BindNativeAction(InputConfig, InputTags::InputTag_ESC, ETriggerEvent::Completed, this, &ThisClass::Input_ESC, /*bLogIfNotFound=*/ false);
 	}
 }
 
@@ -194,6 +197,16 @@ void AGameplayCharacter::Input_LMB()
 		Server_LMB();
 	
 	OnLeftMouseButtonPressedDelegate.Broadcast();
+}
+
+void AGameplayCharacter::Input_ESC()
+{
+	if (!GetController<AGameplayPlayerController>())
+	{
+		GPrintError("Controller not found on input esc.");
+		return;
+	}
+	GetController<AGameplayPlayerController>()->EscPressed();
 }
 
 void AGameplayCharacter::WeaponDetached(AWeapon* Weapon)

@@ -26,4 +26,12 @@ protected:
 public:
 	UFUNCTION(Client, reliable)
 	void Client_OnTeamWin(const EPlayerTeam& PlayerTeam, const float TimeToResetAfterMatchEnd);
+	
+	void EscPressed();
+	
+	UFUNCTION(BlueprintCallable)
+	void ReturnToMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void CloseMenu();
 };

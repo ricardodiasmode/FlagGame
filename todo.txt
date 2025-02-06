@@ -1,9 +1,0 @@
-##Features:
-
-#Player win/reset;
-
-#Disconnections;
-
-#Weapon:
-- som quando ta sem bala;
-- munição no chão;

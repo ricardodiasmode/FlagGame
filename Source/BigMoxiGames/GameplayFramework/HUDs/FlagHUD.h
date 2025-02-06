@@ -17,6 +17,10 @@ class BIGMOXIGAMES_API AFlagHUD : public AHUD
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintReadWrite)
+	uint8 bIsMenuOpen : 1 = false;
+	
+public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWeaponEquipped();
 	
@@ -25,4 +29,10 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartCounterOnTeamWin(const EPlayerTeam& PlayerTeam, const float TimeToResetAfterMatchEnd);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OpenMenu();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CloseMenu();
 };

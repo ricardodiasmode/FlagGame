@@ -36,7 +36,7 @@ class AGameplayCharacter : public ACharacter,
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent = nullptr;
-	
+
 protected:
 	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
@@ -82,6 +82,8 @@ protected:
 	void Server_LMB();
 
 	void Input_LMB();
+
+	void Input_ESC();
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
