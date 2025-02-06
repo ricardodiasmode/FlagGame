@@ -18,10 +18,10 @@ class BIGMOXIGAMES_API AFlagHUD : public AHUD
 
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnWeaponEquipped(AWeapon* Weapon);
+	void OnWeaponEquipped();
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnWeaponDequipped(AWeapon* Weapon);
+	void OnWeaponDequipped();
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartCounterOnTeamWin(const EPlayerTeam& PlayerTeam, const float TimeToResetAfterMatchEnd);

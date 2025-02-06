@@ -15,6 +15,4 @@ class BIGMOXIGAMES_API UFirstPersonAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly)
-	uint8 HasWeapon : 1 = false;
 };

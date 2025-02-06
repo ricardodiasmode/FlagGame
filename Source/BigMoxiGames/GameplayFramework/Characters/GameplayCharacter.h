@@ -36,9 +36,6 @@ class AGameplayCharacter : public ACharacter,
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent = nullptr;
-
-	UPROPERTY()
-	AWeapon* StartWeapon = nullptr;
 	
 protected:
 	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
@@ -64,9 +61,15 @@ public:
 
 	FOnLeftMouseButtonPressedSignature OnLeftMouseButtonPressedDelegate;
 
+	UPROPERTY(ReplicatedUsing=OnRep_AttachedWeapon, BlueprintReadOnly)
+	AWeapon* AttachedWeapon = nullptr;
+
 private:
 	void Input_AbilityInputTagPressed(FGameplayTag InputTag);
 	void Input_AbilityInputTagReleased(FGameplayTag InputTag);
+	
+	UFUNCTION()
+	void OnRep_AttachedWeapon();
 
 protected:
 	/** Called for movement input */
@@ -90,8 +93,6 @@ protected:
 	
 	void SpawnAndEquipWeapon();
 
-	virtual void BeginPlay() override;
-
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 public:
@@ -111,11 +112,8 @@ public:
 	void WeaponAttached(AWeapon* Weapon);
 	void InitAbilitySystemComponent();
 
-	UFUNCTION(Client, reliable)
-	void Client_WeaponAttached(AWeapon* Weapon);
-
-	UFUNCTION(Client, reliable)
-	void Client_WeaponDetached(AWeapon* Weapon);
+	UFUNCTION(BlueprintPure)
+	bool HasWeapon() const;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() override;
 };

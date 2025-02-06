@@ -19,6 +19,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Input/ASInputComponent.h"
 #include "Misc/GeneralFunctionLibrary.h"
+#include "Net/UnrealNetwork.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -105,28 +106,42 @@ void AGameplayCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 }
 
-void AGameplayCharacter::SpawnAndEquipWeapon()
+void AGameplayCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (StartWeaponClass && HasAuthority())
-	{
-		StartWeapon = GetWorld()->SpawnActor<AWeapon>(StartWeaponClass);
-		StartWeapon->AttachWeapon(this);
-	}
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(AGameplayCharacter, AttachedWeapon, COND_None, REPNOTIFY_Always);
 }
 
-void AGameplayCharacter::BeginPlay()
+void AGameplayCharacter::SpawnAndEquipWeapon()
 {
-	Super::BeginPlay();
-
-	SpawnAndEquipWeapon();
+	if (StartWeaponClass)
+	{
+		AttachedWeapon = GetWorld()->SpawnActor<AWeapon>(StartWeaponClass);
+		AttachedWeapon->AttachWeapon(this);
+	}
 }
 
 void AGameplayCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (StartWeapon)
-		StartWeapon->Destroy();
+	if (AttachedWeapon)
+		AttachedWeapon->Destroy();
+}
+
+void AGameplayCharacter::OnRep_AttachedWeapon()
+{
+	if (GetController<APlayerController>())
+	{
+		if (AFlagHUD* HUD = Cast<AFlagHUD>(GetController<APlayerController>()->GetHUD()))
+		{
+			if (AttachedWeapon)
+				HUD->OnWeaponEquipped();
+			else
+				HUD->OnWeaponDequipped();
+		}
+	}
 }
 
 void AGameplayCharacter::Input_AbilityInputTagPressed(FGameplayTag InputTag)
@@ -191,10 +206,8 @@ void AGameplayCharacter::WeaponDetached(AWeapon* Weapon)
 
 	OnLeftMouseButtonPressedDelegate.RemoveAll(Weapon);
 
-	if (UFirstPersonAnimInstance* AnimInstance = Cast<UFirstPersonAnimInstance>(GetMesh1P()->GetAnimInstance()))
-		AnimInstance->HasWeapon = false;
-
-	Client_WeaponDetached(Weapon);
+	AttachedWeapon = nullptr;
+	OnRep_AttachedWeapon();
 }
 
 void AGameplayCharacter::WeaponFire()
@@ -211,33 +224,14 @@ void AGameplayCharacter::WeaponFire()
 		AnimInstance->Montage_Play(FireAnimation, 1.f);
 }
 
-void AGameplayCharacter::Client_WeaponAttached_Implementation(AWeapon* Weapon)
-{
-	if (GetController<APlayerController>())
-	{
-		if (AFlagHUD* HUD = Cast<AFlagHUD>(GetController<APlayerController>()->GetHUD()))
-			HUD->OnWeaponEquipped(Weapon);
-	}
-}
-
-void AGameplayCharacter::Client_WeaponDetached_Implementation(AWeapon* Weapon)
-{
-	if (GetController<APlayerController>())
-	{
-		if (AFlagHUD* HUD = Cast<AFlagHUD>(GetController<APlayerController>()->GetHUD()))
-			HUD->OnWeaponDequipped(Weapon);
-	}
-}
-
 void AGameplayCharacter::WeaponAttached(AWeapon* Weapon)
 {
 	Weapon->OnWeaponFireDelegate.AddUniqueDynamic(this, &ThisClass::WeaponFire);
 	Weapon->OnWeaponDetachedDelegate.AddUniqueDynamic(this, &ThisClass::WeaponDetached);
 
-	if (UFirstPersonAnimInstance* AnimInstance = Cast<UFirstPersonAnimInstance>(GetMesh1P()->GetAnimInstance()))
-		AnimInstance->HasWeapon = true;
-
-	Client_WeaponAttached(Weapon);
+	AttachedWeapon = Weapon;
+	
+	OnRep_AttachedWeapon();
 }
 
 void AGameplayCharacter::PossessedBy(AController* NewController)
@@ -248,6 +242,8 @@ void AGameplayCharacter::PossessedBy(AController* NewController)
 
 	if (AFlagPlayerState* GameplayPlayerState = CastChecked<AFlagPlayerState>(GetPlayerState()))
 		GetMesh()->SetMaterial(0, GameplayPlayerState->IsRedTeam() ? RedTeamMaterial : BlueTeamMaterial);
+	
+	SpawnAndEquipWeapon();
 }
 
 void AGameplayCharacter::OnRep_PlayerState()
@@ -267,6 +263,11 @@ void AGameplayCharacter::InitAbilitySystemComponent()
 		GameplayPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(GameplayPlayerState, this);
 		GameplayPlayerState->OnReset();
 	}}
+
+bool AGameplayCharacter::HasWeapon() const
+{
+	return IsValid(AttachedWeapon);
+}
 
 UAbilitySystemComponent* AGameplayCharacter::GetAbilitySystemComponent()
 {
