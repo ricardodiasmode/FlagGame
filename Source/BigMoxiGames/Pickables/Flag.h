@@ -29,12 +29,14 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	// Sets default values for this actor's properties
+	AFlag();
+	
 	UFUNCTION()
 	void AttachFlag(AGameplayCharacter* PickUpCharacter);
 	
 	void ReturnToInitialPosition();
-
-	// Sets default values for this actor's properties
-	AFlag();
-
+	
+	UFUNCTION()
+	void OnParentDestroyed(AActor* DestroyedActor);
 };

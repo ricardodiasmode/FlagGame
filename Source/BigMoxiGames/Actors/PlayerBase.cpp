@@ -20,6 +20,9 @@ APlayerBase::APlayerBase()
 	BaseCollisionArea->SetCollisionResponseToAllChannels(ECR_Ignore);
 	BaseCollisionArea->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	BaseCollisionArea->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSomethingOverlap);
+
+	bReplicates = true;
+	bAlwaysRelevant = true;
 }
 
 void APlayerBase::OnSomethingOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

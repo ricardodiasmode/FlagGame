@@ -153,7 +153,8 @@ void AWeapon::BeginPlay()
 
 	InitializeAbilitySystemComponent();
 	
-	PickupComponent->OnPickUp.AddUniqueDynamic(this, &ThisClass::AttachWeapon);
+	if (PickupComponent)
+		PickupComponent->OnPickUp.AddUniqueDynamic(this, &ThisClass::AttachWeapon);
 }
 
 void AWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason)

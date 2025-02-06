@@ -32,17 +32,34 @@ void AFlag::BeginPlay()
 	InitialPosition = GetActorLocation();
 }
 
+void AFlag::OnParentDestroyed(AActor* DestroyedActor)
+{
+	DestroyedActor->OnDestroyed.RemoveAll(this);
+	
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+	// Waiting till next tick to register so the flag can back to initial position
+	GetWorldTimerManager().SetTimerForNextTick(PickupComponent, &UTP_PickUpComponent::RegisterOverlap);
+}
+
 void AFlag::AttachFlag(AGameplayCharacter* PickUpCharacter)
 {
 	if (GetAttachParentActor()) // If already attached
 		return;
 	
-	if (!AttachToComponent(PickUpCharacter->GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale))
+	if (AttachToComponent(PickUpCharacter->GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale))
+	{
+		PickUpCharacter->OnDestroyed.AddUniqueDynamic(this, &ThisClass::OnParentDestroyed);
+	} else
+	{
 		GPrintError("Flag attachment fail");
+	}
 }
 
 void AFlag::ReturnToInitialPosition()
 {
+	GetAttachParentActor()->OnDestroyed.RemoveAll(this);
+	
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	
 	SetActorLocation(InitialPosition);

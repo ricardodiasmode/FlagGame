@@ -105,6 +105,30 @@ void AGameplayCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 }
 
+void AGameplayCharacter::SpawnAndEquipWeapon()
+{
+	if (StartWeaponClass && HasAuthority())
+	{
+		StartWeapon = GetWorld()->SpawnActor<AWeapon>(StartWeaponClass);
+		StartWeapon->AttachWeapon(this);
+	}
+}
+
+void AGameplayCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SpawnAndEquipWeapon();
+}
+
+void AGameplayCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (StartWeapon)
+		StartWeapon->Destroy();
+}
+
 void AGameplayCharacter::Input_AbilityInputTagPressed(FGameplayTag InputTag)
 {
 	if (UFlagAbilitySystemComponent* ASC = Cast<UFlagAbilitySystemComponent>(GetPlayerState<AFlagPlayerState>()->GetAbilitySystemComponent()))

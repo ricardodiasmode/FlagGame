@@ -37,6 +37,9 @@ class AGameplayCharacter : public ACharacter,
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent = nullptr;
 
+	UPROPERTY()
+	AWeapon* StartWeapon = nullptr;
+	
 protected:
 	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
@@ -50,7 +53,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Config")
 	UMaterialInstance* BlueTeamMaterial = nullptr;
-
+	
+	UPROPERTY(EditAnywhere, Category="Config")
+	TSubclassOf<AWeapon> StartWeaponClass;
+	
 public:
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
@@ -81,6 +87,12 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void OnRep_PlayerState() override;
+	
+	void SpawnAndEquipWeapon();
+
+	virtual void BeginPlay() override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 public:
 	AGameplayCharacter();
