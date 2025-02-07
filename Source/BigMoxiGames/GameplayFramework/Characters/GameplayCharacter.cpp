@@ -10,7 +10,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "BigMoxiGames/AbilitySystem/FlagAbilitySystemComponent.h"
-#include "BigMoxiGames/AnimInstances/FirstPersonAnimInstance.h"
 #include "BigMoxiGames/GameplayFramework/HUDs/FlagHUD.h"
 #include "BigMoxiGames/GameplayFramework/PlayerControllers/GameplayPlayerController.h"
 #include "BigMoxiGames/GameplayFramework/PlayerStates/FlagPlayerState.h"

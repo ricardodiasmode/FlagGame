@@ -33,6 +33,7 @@ private:
 	void ScheduleRestart();
 
 	void NotifyAllPlayersGameEnded(const EPlayerTeam& WinnerTeam);
+	
 	bool IsRestartingGame();
 
 protected:
@@ -42,6 +43,7 @@ protected:
 
 public:
 	AActor* GetPlayerStartByTeam(const EPlayerTeam& PlayerTeam);
+	
 	void RemoveFromAnyTeam(AController* NewPlayer);
 
 	virtual void RestartPlayer(AController* NewPlayer) override;
