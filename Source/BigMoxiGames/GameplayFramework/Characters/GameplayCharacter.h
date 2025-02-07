@@ -41,9 +41,9 @@ protected:
 	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
 	TObjectPtr<UASInputConfig> InputConfig;
-	
+
 	UPROPERTY(EditAnywhere, Category="Config")
-	TArray<FInputMappingContextAndPriority> DefaultInputMappings;
+	TObjectPtr<UInputMappingContext> InputMapping;
 	
 	UPROPERTY(EditAnywhere, Category="Config")
 	UMaterialInstance* RedTeamMaterial = nullptr;

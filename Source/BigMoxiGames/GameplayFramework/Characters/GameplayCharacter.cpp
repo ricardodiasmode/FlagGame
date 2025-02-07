@@ -66,27 +66,8 @@ void AGameplayCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	check(Subsystem);
 
-	Subsystem->ClearAllMappings();
-
-	check(DefaultInputMappings.Num() > 0);
-	for (const FInputMappingContextAndPriority& Mapping : DefaultInputMappings)
-	{
-		if (UInputMappingContext* IMC = Mapping.InputMapping.Get())
-		{
-			if (Mapping.bRegisterWithSettings)
-			{
-				if (UEnhancedInputUserSettings* Settings = Subsystem->GetUserSettings())
-				{
-					Settings->RegisterInputMappingContext(IMC);
-				}
-				
-				FModifyContextOptions Options = {};
-				Options.bIgnoreAllPressedKeysUntilRelease = false;
-				// Actually add the config to the local player							
-				Subsystem->AddMappingContext(IMC, Mapping.Priority, Options);
-			}
-		}
-	}
+	check(InputMapping.Get());
+	Subsystem->AddMappingContext(InputMapping.Get(), 0);
 
 	UASInputComponent* ASIC = Cast<UASInputComponent>(InputComponent);
 	if (ensureMsgf(ASIC, TEXT("Unexpected Input Component class! The Gameplay Abilities will not be bound to their inputs. Change the input component to ULyraInputComponent or a subclass of it.")))
